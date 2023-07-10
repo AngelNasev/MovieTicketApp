@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MovieTickets.Domain.DomainModels;
 using MovieTickets.Domain.DTO;
+using MovieTickets.Domain.Enumerations;
 using MovieTickets.Service.Interface;
 using System.Security.Claims;
 
@@ -22,7 +25,54 @@ namespace MovieTickets.Web.Controllers
         // GET: MovieTickets
         public IActionResult Index(DateTime? selectedDate)
         {
+            var genres = Enum.GetValues(typeof(Genre)).Cast<Genre>().ToList();
+            ViewData["Genres"] = new SelectList(genres);
             return View(_ticketService.GetMovieTicketsByDate(selectedDate));
+        }
+
+        [HttpPost]
+        public IActionResult ExportTicketsByGenre(string genre)
+        {
+            var tickets = _ticketService.GetTicketsByGenre(genre);
+
+            string fileName = "Tickets.xlsx";
+            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+            using (var workbook = new XLWorkbook())
+            {
+                IXLWorksheet sheet = workbook.Worksheets.Add("Tickets");
+                sheet.Cell(1, 2).Value = "Genre: ";
+                if (genre==null)
+                {
+                    sheet.Cell(1, 3).Value = "All Genres";
+                }
+                else
+                {
+                    sheet.Cell(1, 3).Value = genre;
+                }
+                sheet.Cell(2, 1).Value = "Movie Title";
+                sheet.Cell(2, 2).Value = "Ticket Price";
+                sheet.Cell(2, 3).Value = "Projection Date";
+                sheet.Cell(2, 4).Value = "Duration (minutes)";
+
+                for (int i = 2; i <= tickets.Count+1; i++)
+                {
+                    var ticket = tickets[i - 2];
+
+                    sheet.Cell(i + 1, 1).Value = ticket.Movie.Name;
+                    sheet.Cell(i + 1, 2).Value = ticket.Price;
+                    sheet.Cell(i + 1, 3).Value = ticket.Date.Date.ToString();
+                    sheet.Cell(i + 1, 4).Value = ticket.Movie.Duration;
+                }
+
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    var content = stream.ToArray();
+
+                    return File(content, contentType, fileName);
+                }
+            }
         }
 
         // GET: MovieTickets/Details/5

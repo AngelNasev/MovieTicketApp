@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieTickets.Domain.DomainModels;
 using MovieTickets.Domain.DTO;
+using MovieTickets.Domain.Enumerations;
 using MovieTickets.Repository.Interface;
 using MovieTickets.Service.Interface;
 using System.Security.Claims;
@@ -57,6 +58,21 @@ namespace MovieTickets.Service.Implementation
         {
             var ticketToDelete = this.GetDetailsForTicket(id);
             _movieTicketRepository.Delete(ticketToDelete);
+        }
+
+        public List<MovieTicket> GetTicketsByGenre(string genreString)
+        {
+            var ticketList = new List<MovieTicket>();
+            if (genreString != null)
+            {
+                Genre genre = (Genre)Enum.Parse(typeof(Genre), genreString);
+                ticketList = _movieTicketRepository.GetMovieTicketsByGenre(genre);
+            }
+            else
+            {
+                ticketList = _movieTicketRepository.GetAll().ToList();
+            }
+            return ticketList;
         }
 
         public List<MovieTicket> GetAllTickets()

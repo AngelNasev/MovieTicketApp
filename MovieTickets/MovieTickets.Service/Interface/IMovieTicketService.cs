@@ -6,6 +6,7 @@ namespace MovieTickets.Service.Interface
     public interface IMovieTicketService
     {
         List<MovieTicket> GetMovieTicketsByDate(DateTime? selectedDate);
+        List<MovieTicket> GetTicketsByGenre(string genreString);
         List<MovieTicket> GetAllTickets();
         MovieTicket GetDetailsForTicket(Guid? id);
         void CreateNewTicket(MovieTicketDto dto, Movie movie);

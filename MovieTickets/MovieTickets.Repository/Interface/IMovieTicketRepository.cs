@@ -1,4 +1,5 @@
 ﻿using MovieTickets.Domain.DomainModels;
+using MovieTickets.Domain.Enumerations;
 
 namespace MovieTickets.Repository.Interface
 {
@@ -10,5 +11,6 @@ namespace MovieTickets.Repository.Interface
         MovieTicket Update(MovieTicket entity);
         MovieTicket Delete(MovieTicket entity);
         List<MovieTicket> GetMovieTicketsByDate(DateTime? selectedDate);
+        List<MovieTicket> GetMovieTicketsByGenre(Genre genre);
     }
 }

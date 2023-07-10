@@ -1,19 +1,41 @@
-﻿@model List<MovieTickets.Domain.DomainModels.MovieTicket>
+﻿@using MovieTickets.Domain.Enumerations;
+@model List<MovieTickets.Domain.DomainModels.MovieTicket>
 
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var genres = ViewData["Genres"] as SelectList;
 }
 
 
 <div class="container">
-    <p class="mb-4">
+
+    @if (User.IsInRole("Admin"))
+    {
+        <form asp-action="ExportTicketsByGenre" method="post">
+            <div class="form-group">
+                <label for="genre">Select Genre:</label>
+                <select name="genre" id="genre" class="form-control">
+                    <option value="">All Genres</option>
+                    @foreach (Genre genre in Enum.GetValues(typeof(Genre)))
+                    {
+                        <option value="@genre">@genre</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Export Tickets</button>
+            </div>
+        </form>
+    }
+
+    <p class="my-4">
         <a asp-action="Create" class="btn btn-success">Add New Ticket</a>
     </p>
     <div class="mb-4">
         <form asp-action="Index" method="get">
-            <div class="input-group">
+            <div class="form-group">
                 <label for="selectedDate">Select Date:</label>
                 <input class="form-control" type="date" name="selectedDate"/>
                 <button type="submit" class="btn btn-primary">Filter</button>

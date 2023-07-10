@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MovieTickets.Domain.DomainModels;
+using MovieTickets.Domain.Enumerations;
 using MovieTickets.Repository.Interface;
 
 namespace MovieTickets.Repository.Implementation
@@ -36,7 +37,9 @@ namespace MovieTickets.Repository.Implementation
 
         public IEnumerable<MovieTicket> GetAll()
         {
-            return entities.AsEnumerable();
+            return entities
+                .Include(x => x.Movie)
+                .AsEnumerable();
         }
 
         public List<MovieTicket> GetMovieTicketsByDate(DateTime? selectedDate)
@@ -47,6 +50,14 @@ namespace MovieTickets.Repository.Implementation
             {
                 tickets = tickets.Where(t => t.Date.Date == selectedDate);
             }
+            return tickets.ToList();
+        }
+
+        public List<MovieTicket> GetMovieTicketsByGenre(Genre genre)
+        {
+            IQueryable<MovieTicket> tickets = _context.MovieTickets
+                .Include(m => m.Movie)
+                .Where(m => m.Movie.Genre == genre);
             return tickets.ToList();
         }
 
