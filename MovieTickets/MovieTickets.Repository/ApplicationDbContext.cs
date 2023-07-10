@@ -2,15 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using MovieTickets.Domain.DomainModels;
 using MovieTickets.Domain.Identity;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace MovieTickets.Repository
 {
     public class ApplicationDbContext : IdentityDbContext<AppUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        : base(options)
         {
         }
 
@@ -18,6 +16,7 @@ namespace MovieTickets.Repository
         public virtual DbSet<MovieTicket> MovieTickets { get; set; }
         public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<EmailMessage> EmailMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

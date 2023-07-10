@@ -17,14 +17,16 @@ namespace MovieTickets.Service.Implementation
         private readonly IMovieTicketRepository _movieTicketRepository;
         private readonly IRepository<ShoppingCart> _shoppingCartRepository;
         private readonly IRepository<Order> _orderRepository;
+        private readonly IRepository<EmailMessage> _emailMessageRepository;
        
 
-        public ShoppingCartService(IUserRepository userRepository, IMovieTicketRepository movieTicketRepository, IRepository<ShoppingCart> shoppingCartRepository, IRepository<Order> orderRepository)
+        public ShoppingCartService(IUserRepository userRepository, IMovieTicketRepository movieTicketRepository, IRepository<ShoppingCart> shoppingCartRepository, IRepository<Order> orderRepository, IRepository<EmailMessage> emailMessageRepository)
         {
             _userRepository = userRepository;
             _movieTicketRepository = movieTicketRepository;
             _shoppingCartRepository = shoppingCartRepository;
             _orderRepository = orderRepository;
+            _emailMessageRepository = emailMessageRepository;
         }
 
         public bool deleteTicketFromShoppingCart(string userId, Guid ticketId)
@@ -77,6 +79,11 @@ namespace MovieTickets.Service.Implementation
 
                 var userShoppingCart = loggedInUser.UserShoppingCart;
 
+                EmailMessage mail = new EmailMessage();
+                mail.MailTo = loggedInUser.Email;
+                mail.Subject = "Sucessfuly created order!";
+                mail.Status = false;
+
                 Order userOrder = new Order
                 {
                     Id = Guid.NewGuid(),
@@ -84,11 +91,22 @@ namespace MovieTickets.Service.Implementation
                     Owner = loggedInUser
                 };
 
-               
-
                 List<MovieTicket> ticketsInOrder = new List<MovieTicket>();
                 ticketsInOrder = userShoppingCart.MovieTickets.ToList();
                 userOrder.OrderMovieTickets = new List<MovieTicket>();
+
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Your order is completed. The order conatins: ");
+                for (int i = 1; i <= ticketsInOrder.Count; i++)
+                {
+                    var item = ticketsInOrder[i-1];
+                    sb.AppendLine(i.ToString()+". "+item.Movie.Name + ", seat: " + item.SeatNumber + " on " + item.Date.Date.ToString("MM/dd/yyyy") + " and price of: $" + item.Price);
+                }
+                double totalPrice = ticketsInOrder.Select(u => u.Price).Sum();
+                sb.AppendLine("Total the price for your order: $" + totalPrice.ToString());
+                mail.Body = sb.ToString();
+                _emailMessageRepository.Insert(mail);
+
                 foreach (var ticket in ticketsInOrder)
                 {
                     userOrder.OrderMovieTickets.Add(ticket);

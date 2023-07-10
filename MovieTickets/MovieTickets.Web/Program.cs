@@ -1,13 +1,19 @@
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using MovieTickets.Domain;
 using MovieTickets.Domain.Identity;
 using MovieTickets.Repository;
 using MovieTickets.Repository.Implementation;
 using MovieTickets.Repository.Interface;
+using MovieTickets.Service;
 using MovieTickets.Service.Implementation;
 using MovieTickets.Service.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var emailSettings = new EmailSettings();
+builder.Configuration.GetSection("EmailSettings").Bind(emailSettings);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -25,10 +31,15 @@ builder.Services.AddScoped(typeof(IMovieTicketRepository), typeof(MovieTicketRep
 builder.Services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
 builder.Services.AddScoped(typeof(IOrderRepository), typeof(OrderRepository));
 
-builder.Services.AddTransient<IMovieService, MovieTickets.Service.Implementation.MovieService>();
-builder.Services.AddTransient<IMovieTicketService, MovieTickets.Service.Implementation.MovieTicketService>();
-builder.Services.AddTransient<IShoppingCartService, MovieTickets.Service.Implementation.ShoppingCartService>();
-builder.Services.AddTransient<IOrderService, MovieTickets.Service.Implementation.OrderService>();
+builder.Services.AddScoped<EmailSettings>(es => emailSettings);
+builder.Services.AddScoped<IEmailService, EmailService>(email => new EmailService(emailSettings));
+builder.Services.AddScoped<IBackgroundEmailSender, BackgroundEmailSender>();
+builder.Services.AddHostedService<ConsumeScopedHostedService>();
+
+builder.Services.AddTransient<IMovieService, MovieService>();
+builder.Services.AddTransient<IMovieTicketService, MovieTicketService>();
+builder.Services.AddTransient<IShoppingCartService, ShoppingCartService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 
 var app = builder.Build();
 
