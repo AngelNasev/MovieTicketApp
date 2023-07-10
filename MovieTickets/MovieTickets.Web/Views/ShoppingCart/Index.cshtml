@@ -1,0 +1,50 @@
+﻿@model MovieTickets.Domain.DTO.ShoppingCartDto;
+
+<div class="container">
+    <div class="row">
+        <a asp-controller="ShoppingCart" asp-action="Order" class="btn btn-success">Order Now</a>
+    </div>
+
+    <div class="row" style="margin-top:20px;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Movie</th>
+                    <th scope="col">Seat number</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Price</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.MovieTickets.Count; i++)
+                {
+                    var currentProduct = Model.MovieTickets[i];
+
+                    <tr>
+                        <td>@(i + 1)</td>
+                        <td>@currentProduct.Movie.Name</td>
+                        <td>@currentProduct.SeatNumber</td>
+                        <td>@currentProduct.Date.Date.ToString("MM/dd/yyyy")</td>
+                        <td>$@currentProduct.Price</td>
+                        <td>
+                            <a asp-controller="ShoppingCart" asp-action="Delete" asp-route-id="@currentProduct.Id" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th scope="col">Total Price:</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"><b>$@Model.TotalPrice</b></th>
+                    <th scope="col"></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+</div>

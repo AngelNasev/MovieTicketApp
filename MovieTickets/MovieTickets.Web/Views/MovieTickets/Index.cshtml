@@ -1,0 +1,65 @@
+﻿@model List<MovieTickets.Domain.DomainModels.MovieTicket>
+
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container">
+    <p class="mb-4">
+        <a asp-action="Create" class="btn btn-success">Add New Ticket</a>
+    </p>
+    <div class="mb-4">
+        <form asp-action="Index" method="get">
+            <div class="input-group">
+                <label for="selectedDate">Select Date:</label>
+                <input class="form-control" type="date" name="selectedDate"/>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary ml-2">Clear</a>
+            </div>
+        </form>
+    </div>
+    
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            @if (item.ShoppingCartId == null && item.OrderId == null)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card" style="width: 22rem; height: 37rem;">
+                        <img class="card-img-top" src="@item.Movie.Poster" style="height: 60%;" alt="Image for ticket">
+                        <div class="card-body">
+                            <h4 class="card-title"><b>@item.Movie.Name</b></h4>
+                            <h6 class="card-text"><b>Seat number: @item.SeatNumber</b></h6>
+                            <p class="card-text">
+                                Projection date: @item.Date.Date.ToString("MM/dd/yyyy")<br />
+                                Time: @item.Date.Hour.ToString("00"):@item.Date.Minute.ToString("00")
+                            </p>
+                            <h6 class="card-text">Price: $@item.Price</h6>
+                        </div>
+                        <div class="card-footer d-flex justify-content-center align-items-center">
+                            <div class="btn-group">
+                                @if (User.Identity.IsAuthenticated)
+                                {
+                                    @if (@item.Date.Date > DateTime.Today)
+                                    {
+                                        <a asp-controller="MovieTickets" asp-action="AddTicketToCart" asp-route-id="@item.Id" class="btn btn-primary">Add to Cart</a>
+                                    }
+                                    else
+                                    {
+                                        <a asp-controller="MovieTickets" asp-action="AddTicketToCart" asp-route-id="@item.Id" class="btn btn-primary disabled">Past Event</a>
+                                    }
+                                }
+                                <a asp-controller="MovieTickets" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary">Edit</a>
+                                <a asp-controller="MovieTickets" asp-action="Details" asp-route-id="@item.Id" class="btn btn-dark">Details</a>
+                                <a asp-controller="MovieTickets" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
