@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,7 @@ using MovieTickets.Domain.DomainModels;
 using MovieTickets.Domain.DTO;
 using MovieTickets.Domain.Identity;
 using MovieTickets.Service.Interface;
+using Stripe;
 using System.Net.Sockets;
 using System.Security.Claims;
 
@@ -39,13 +41,30 @@ namespace MovieTickets.Web.Controllers
             return RedirectToAction("Index", "ShoppingCart");
         }
 
-        public IActionResult Order()
+        public IActionResult Order(string stripeEmail, string stripeToken)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customerService = new CustomerService();
+            var chargeService = new ChargeService();
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var customer = customerService.Create(new CustomerCreateOptions
+            {
+                Email = stripeEmail,
+                Source = stripeToken
+            });
+            var TotalPrice = _shoppingCartService.getShoppingCartInfo(userId).TotalPrice;
+            var charge = chargeService.Create(new ChargeCreateOptions
+            {
+                Amount = Convert.ToInt32(TotalPrice * 100),
+                Description = "Movie Ticket Payment",
+                Currency = "usd",
+                Customer = customer.Id
+            });
 
-            if (!string.IsNullOrEmpty(userId))
+            if (charge.Status == "succeeded")
             {
                 _shoppingCartService.order(userId);
+                return RedirectToAction("Index", "Order");
+
             }
 
             return RedirectToAction("Index", "ShoppingCart");

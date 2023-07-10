@@ -100,7 +100,7 @@ namespace MovieTickets.Service.Implementation
                 for (int i = 1; i <= ticketsInOrder.Count; i++)
                 {
                     var item = ticketsInOrder[i-1];
-                    sb.AppendLine(i.ToString()+". "+item.Movie.Name + ", seat: " + item.SeatNumber + " on " + item.Date.Date.ToString("MM/dd/yyyy") + " and price of: $" + item.Price);
+                    sb.AppendLine(i.ToString()+". "+item.Movie.Name + ", seat: " + item.SeatNumber + " on " + item.Date.Date.ToString("MM/dd/yyyy") + " and price of: $" + item.Price+"\n");
                 }
                 double totalPrice = ticketsInOrder.Select(u => u.Price).Sum();
                 sb.AppendLine("Total the price for your order: $" + totalPrice.ToString());

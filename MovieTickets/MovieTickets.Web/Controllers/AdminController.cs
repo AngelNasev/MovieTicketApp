@@ -5,9 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using MovieTickets.Domain.DomainModels;
 using MovieTickets.Domain.DTO;
 using MovieTickets.Domain.Identity;
-using System.Data;
-using System.Linq;
-using System.Security.Claims;
 
 namespace MovieTickets.Web.Controllers
 {

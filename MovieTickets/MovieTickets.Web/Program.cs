@@ -9,6 +9,7 @@ using MovieTickets.Repository.Interface;
 using MovieTickets.Service;
 using MovieTickets.Service.Implementation;
 using MovieTickets.Service.Interface;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddScoped<IEmailService, EmailService>(email => new EmailServic
 builder.Services.AddScoped<IBackgroundEmailSender, BackgroundEmailSender>();
 builder.Services.AddHostedService<ConsumeScopedHostedService>();
 
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+
 builder.Services.AddTransient<IMovieService, MovieService>();
 builder.Services.AddTransient<IMovieTicketService, MovieTicketService>();
 builder.Services.AddTransient<IShoppingCartService, ShoppingCartService>();
@@ -43,6 +46,8 @@ builder.Services.AddTransient<IOrderService, OrderService>();
 
 var app = builder.Build();
 
+
+StripeConfiguration.SetApiKey(builder.Configuration.GetSection("Stripe")["SecretKey"]);
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

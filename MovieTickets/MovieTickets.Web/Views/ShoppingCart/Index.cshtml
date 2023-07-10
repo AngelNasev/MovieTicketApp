@@ -1,8 +1,23 @@
-﻿@model MovieTickets.Domain.DTO.ShoppingCartDto;
+﻿@using Microsoft.Extensions.Options
+@inject IOptions<MovieTickets.Domain.StripeSettings> Stripe
+@model MovieTickets.Domain.DTO.ShoppingCartDto;
 
 <div class="container">
+    <div class="text-center">
+        <h3>Shopping Cart</h3>
+    </div>
     <div class="row">
-        <a asp-controller="ShoppingCart" asp-action="Order" class="btn btn-success">Order Now</a>
+        <!--<a asp-controller="ShoppingCart" asp-action="Order" class="btn btn-success">Order Now</a>-->
+        <form asp-controller="ShoppingCart" asp-action="Order" method="post">
+            <script src="https://checkout.stripe.com/checkout.js" 
+                    class="stripe-button"
+                    data-key="@Stripe.Value.PublishableKey"
+                    data-locale="auto"
+                    data-description="Movie Ticket Payment"
+                    data-amount="@(Model.TotalPrice * 100)"
+                    data-label="Pay $@Model.TotalPrice">
+            </script>
+        </form>
     </div>
 
     <div class="row" style="margin-top:20px;">
